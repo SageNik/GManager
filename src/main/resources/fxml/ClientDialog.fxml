@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="380.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.g_manager.controller.ClientDialogController">
+   <center>
+      <VBox prefHeight="390.0" prefWidth="380.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="%client.person.info">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+               </padding>
+            </Label>
+            <Separator prefWidth="380.0" />
+            <GridPane>
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" prefWidth="130.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" prefWidth="230.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Label text="%client.surname" />
+                  <Label text="%client.name" GridPane.rowIndex="1" />
+                  <Label text="%client.second_name" GridPane.rowIndex="2" />
+                  <Label text="%birthday" GridPane.rowIndex="3" />
+                  <Label text="%category" GridPane.rowIndex="4" />
+                  <Label text="%gender" GridPane.rowIndex="5" />
+                  <TextField fx:id="tfldSurname" GridPane.columnIndex="1" />
+                  <TextField fx:id="tfldName" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="tfldSecondName" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="230.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                     <children>
+                        <RadioButton fx:id="rbtnMale" alignment="CENTER_LEFT" mnemonicParsing="false" selected="true" text="%male">
+                           <padding>
+                              <Insets left="5.0" right="15.0" />
+                           </padding>
+                           <toggleGroup>
+                              <ToggleGroup fx:id="gender" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="rbtnFemale" alignment="CENTER_RIGHT" mnemonicParsing="false" text="%female" toggleGroup="$gender">
+                           <padding>
+                              <Insets left="15.0" />
+                           </padding>
+                        </RadioButton>
+                     </children>
+                  </HBox>
+                  <DatePicker fx:id="datepicBirthday" prefHeight="25.0" prefWidth="235.0" promptText="%client.enter.date" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <ChoiceBox fx:id="choboxCategory" prefHeight="25.0" prefWidth="235.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+               </VBox.margin>
+            </GridPane>
+            <Separator prefWidth="380.0" />
+            <Label text="%client.contact.info">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+               </VBox.margin>
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Separator prefWidth="380.0" />
+            <GridPane>
+               <columnConstraints>
+                  <ColumnConstraints prefWidth="130.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" prefWidth="230.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+               </VBox.margin>
+               <children>
+                  <Label text="%phone" />
+                  <Label text="%email" GridPane.rowIndex="1" />
+                  <Label text="%address" GridPane.rowIndex="2" />
+                  <TextField fx:id="tfldPhone" promptText="(xxx) xxx-xxxx" GridPane.columnIndex="1" />
+                  <TextField fx:id="tfldEmail" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextArea fx:id="tfldAddress" prefHeight="25.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                     <GridPane.margin>
+                        <Insets top="3.0" />
+                     </GridPane.margin>
+                  </TextArea>
+               </children>
+            </GridPane>
+            <Separator prefWidth="380.0" />
+         </children>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="CENTER_RIGHT" prefHeight="40.0" prefWidth="380.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="btnSaveClient" defaultButton="true" mnemonicParsing="false" onAction="#savePerson" prefWidth="100.0" text="%save">
+               <HBox.margin>
+                  <Insets right="10.0" />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="btnCancel" alignment="CENTER" cancelButton="true" mnemonicParsing="false" onAction="#actionClose" prefWidth="100.0" text="%cancel" textAlignment="CENTER" />
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <BorderPane.margin>
+            <Insets right="10.0" />
+         </BorderPane.margin>
+      </HBox>
+   </bottom>
+</BorderPane>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxWidth="-Infinity" minHeight="250.0" minWidth="280.0" prefHeight="250.0" prefWidth="400.0" stylesheets="@../styles/Style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.g_manager.controller.LoginController">
+   <children>
+      <Label fx:id="lblLogin" layoutX="70.0" layoutY="47.0" text="%login.login" AnchorPane.leftAnchor="70.0">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <TextField fx:id="username" layoutX="70.0" layoutY="97.0" promptText="%username" AnchorPane.leftAnchor="70.0" AnchorPane.rightAnchor="70.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <font>
+            <Font size="14.0" />
+         </font>
+      </TextField>
+      <PasswordField fx:id="password" layoutX="70.0" layoutY="152.0" onAction="#login" promptText="%password" AnchorPane.leftAnchor="70.0" AnchorPane.rightAnchor="70.0">
+         <font>
+            <Font size="14.0" />
+         </font></PasswordField>
+      <Button fx:id="btnLogin" contentDisplay="CENTER" layoutX="230.0" layoutY="198.0" mnemonicParsing="false" onAction="#login" prefHeight="38.0" prefWidth="100.0" text="%login.sign_in" textAlignment="CENTER" AnchorPane.rightAnchor="70.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Button>
+      <Label alignment="CENTER" layoutX="140.0" layoutY="14.0" text="Gym Manager" textAlignment="CENTER" AnchorPane.rightAnchor="140.0">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="errorLog" layoutX="70.0" layoutY="74.0" style="visibility: false;" text="%login.fail" textFill="RED" AnchorPane.leftAnchor="70.0">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>
