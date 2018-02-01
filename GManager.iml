@@ -85,5 +85,6 @@
     <orderEntry type="library" name="Maven: com.google.code.findbugs:annotations:3.0.1u2" level="project" />
     <orderEntry type="library" name="Maven: net.jcip:jcip-annotations:1.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:3.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.h2database:h2:1.4.193" level="project" />
   </component>
 </module>
