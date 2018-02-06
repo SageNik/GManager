@@ -1,6 +1,7 @@
 package com.g_manager.service.impls;
 
 import com.g_manager.entity.StaffCategory;
+import com.g_manager.exception.StaffCategoryException;
 import com.g_manager.repository.mysql.MySqlStaffCategoryRepository;
 import com.g_manager.service.StaffCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,5 +51,15 @@ public class StaffCategoryServiceImpl implements StaffCategoryService {
     @Override
     public List<StaffCategory> findAll() {
         return mySqlStaffCategoryRepository.findAll();
+    }
+
+    @Override
+    public List<StaffCategory> findAllNotEmpty() throws StaffCategoryException {
+        List<StaffCategory> allClientCategories = mySqlStaffCategoryRepository.findAll();
+        if(allClientCategories.isEmpty()){
+            throw new StaffCategoryException("Client category should not be empty");
+        }else {
+            return allClientCategories;
+        }
     }
 }

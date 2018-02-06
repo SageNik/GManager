@@ -1,6 +1,7 @@
 package com.g_manager.service.impls;
 
 import com.g_manager.entity.ClientCategory;
+import com.g_manager.exception.ClientCategoryException;
 import com.g_manager.repository.mysql.MySqlClientCategoryRepository;
 import com.g_manager.service.ClientCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import java.util.List;
 public class ClientCategoryServiceImpl implements ClientCategoryService{
 
     @Autowired
-    MySqlClientCategoryRepository clientCategoryRepository;
+    private MySqlClientCategoryRepository clientCategoryRepository;
 
     @Override
     public ClientCategory save(ClientCategory entity) {
@@ -50,5 +51,15 @@ public class ClientCategoryServiceImpl implements ClientCategoryService{
     @Override
     public List<ClientCategory> findAll() {
         return clientCategoryRepository.findAll();
+    }
+
+    @Override
+    public List<ClientCategory> findAllNotEmpty() throws ClientCategoryException {
+        List<ClientCategory> allClientCategories = clientCategoryRepository.findAll();
+        if(allClientCategories.isEmpty()){
+            throw new ClientCategoryException("Client category should not be empty");
+        }else {
+            return allClientCategories;
+        }
     }
 }

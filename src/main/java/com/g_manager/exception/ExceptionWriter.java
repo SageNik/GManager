@@ -24,6 +24,6 @@ public class ExceptionWriter extends PrintWriter{
 
         String exception = super.out.toString();
 
-        return (wrapAroundWithNewlines(exception));
+        return ( wrapAroundWithNewlines(exception));
     }
 }
