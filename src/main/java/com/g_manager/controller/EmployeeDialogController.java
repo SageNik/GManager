@@ -3,6 +3,7 @@ package com.g_manager.controller;
 import com.g_manager.entity.Employee;
 import com.g_manager.entity.StaffCategory;
 import com.g_manager.entity.base.BasePerson;
+import com.g_manager.enums.EmployeeStatus;
 import com.g_manager.enums.GenderType;
 import com.g_manager.exception.StaffCategoryException;
 import com.g_manager.service.EmployeeService;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,14 +90,14 @@ public class EmployeeDialogController extends BasePersonDialogController impleme
 
     private void checkAndSave(ActionEvent event, Employee employee) {
 
-        Employee existEmployee = employeeService.findByPhone(employee.getPhone());
+        Employee existEmployee = employeeService.findByPhoneAndStatus(employee.getPhone(), EmployeeStatus.EMPLOYED);
 
-        if((existEmployee != null && employee.getId() == null) || (existEmployee != null && existEmployee.getId() != employee.getId())){
+        if((existEmployee != null && employee.getId() == null) || (existEmployee != null && existEmployee.getId().equals(employee.getId()))){
             SimpleDialogManager.showErrorDialog(resourceBundle.getString("save.error"),
                     resourceBundle.getString("employee.exist.phone.error")+ ": "+ existEmployee.getFullName());
         }else {
-            existEmployee = employeeService.findByFullName(employee.getFullName());
-            if ((existEmployee != null && employee.getId() == null) || (existEmployee != null && existEmployee.getId() != employee.getId())) {
+            existEmployee = employeeService.findByFullNameAndStatus(employee.getFullName(), EmployeeStatus.EMPLOYED);
+            if ((existEmployee != null && employee.getId() == null) || (existEmployee != null && existEmployee.getId().equals(employee.getId()))) {
                 SimpleDialogManager.showErrorDialog(resourceBundle.getString("save.error"),
                         resourceBundle.getString("employee.exist.name.error"));
 
@@ -110,6 +112,8 @@ public class EmployeeDialogController extends BasePersonDialogController impleme
     private Employee createEmployee() {
         Employee newEmployee = new Employee();
         fillEmployee(newEmployee);
+        newEmployee.setStatus(EmployeeStatus.EMPLOYED);
+        newEmployee.setWorkStartDate(LocalDate.now());
         newEmployee.setTitleFotoPath(isMale()? MALE_DEFAULT_EMPLOYEE_TITLE_FOTO_PATH : FEMALE_DEFAULT_EMPLOYEE_TITLE_FOTO_PATH);
 
         return newEmployee;

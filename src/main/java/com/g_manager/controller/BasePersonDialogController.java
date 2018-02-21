@@ -92,8 +92,8 @@ public abstract class BasePersonDialogController implements Constants{
         if(person.getGender() == null){
             rbtnMale.setSelected(true);
         }else {
-            rbtnMale.setSelected(person.getGender() == GenderType.MALE);
-            rbtnFemale.setSelected(person.getGender() == GenderType.FEMALE);
+            rbtnMale.setSelected(GenderType.MALE.equals(person.getGender()));
+            rbtnFemale.setSelected(GenderType.FEMALE.equals(person.getGender()));
         }
     }
 

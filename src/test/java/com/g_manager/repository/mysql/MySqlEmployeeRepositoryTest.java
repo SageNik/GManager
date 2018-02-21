@@ -1,6 +1,7 @@
 package com.g_manager.repository.mysql;
 
 import com.g_manager.entity.Employee;
+import com.g_manager.enums.EmployeeStatus;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,8 @@ public class MySqlEmployeeRepositoryTest {
         Employee employee = new Employee();
         employee.setPhone(phone);
         employee.setFullName(fullName);
+        employee.setStatus(EmployeeStatus.EMPLOYED);
+
         testEntityManager.persist(employee);
         testEntityManager.flush();
     }
@@ -40,7 +43,7 @@ public class MySqlEmployeeRepositoryTest {
     @Test
     public void whenFindByPhone_thenReturnFoundEmployee(){
         setUp();
-        Employee found = mySqlEmployeeRepository.findByPhone(phone);
+        Employee found = mySqlEmployeeRepository.findByPhoneAndStatus(phone, EmployeeStatus.EMPLOYED);
 
         assertThat(found.getFullName()).isEqualTo(fullName);
         assertThat(found.getPhone()).isEqualTo(phone);
@@ -48,7 +51,7 @@ public class MySqlEmployeeRepositoryTest {
 
     @Test
     public void whenNotFoundByPhone_thenReturnNull(){
-        Employee found = mySqlEmployeeRepository.findByPhone(phone);
+        Employee found = mySqlEmployeeRepository.findByPhoneAndStatus(phone, EmployeeStatus.EMPLOYED);
 
         assertThat(found).isNull();
     }
@@ -56,7 +59,7 @@ public class MySqlEmployeeRepositoryTest {
     @Test
     public void whenFindByFullname_thenReturnFoundEmployee(){
         setUp();
-        Employee found = mySqlEmployeeRepository.findByFullName(fullName);
+        Employee found = mySqlEmployeeRepository.findByFullNameAndStatus(fullName, EmployeeStatus.EMPLOYED);
 
         assertThat(found.getFullName()).isEqualTo(fullName);
         assertThat(found.getPhone()).isEqualTo(phone);
@@ -64,7 +67,7 @@ public class MySqlEmployeeRepositoryTest {
 
     @Test
     public void whenNotFoundByFullName_thenReturnNull(){
-        Employee found = mySqlEmployeeRepository.findByFullName(fullName);
+        Employee found = mySqlEmployeeRepository.findByFullNameAndStatus(fullName, EmployeeStatus.EMPLOYED);
 
         assertThat(found).isNull();
     }
@@ -91,10 +94,14 @@ public class MySqlEmployeeRepositoryTest {
     public void whenFindAll_thenReturnFoundEmployees(){
         Employee employee = new Employee();
         employee.setPhone("111");
+        employee.setStatus(EmployeeStatus.EMPLOYED);
         Employee employeeTwo = new Employee();
         employeeTwo.setPhone("222");
+        employee.setStatus(EmployeeStatus.EMPLOYED);
         Employee employeeThree = new Employee();
         employeeThree.setPhone("333");
+        employee.setStatus(EmployeeStatus.EMPLOYED);
+
         testEntityManager.persist(employee);
         testEntityManager.persist(employeeTwo);
         testEntityManager.persist(employeeThree);

@@ -3,6 +3,7 @@ package com.g_manager.controller;
 import com.g_manager.config.StageManager;
 import com.g_manager.entity.Client;
 import com.g_manager.entity.Employee;
+import com.g_manager.enums.EmployeeStatus;
 import com.g_manager.enums.GenderType;
 import com.g_manager.service.ClientService;
 import com.g_manager.service.EmployeeService;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
@@ -172,7 +172,7 @@ public class HomeController implements Initializable{
     }
 
     private String getClientGender(){
-        return (selectedClient.getGender()== GenderType.MALE)? resourceBundle.getString("male")
+        return (GenderType.MALE.equals(selectedClient.getGender()))? resourceBundle.getString("male")
                 : resourceBundle.getString("female");
     }
 
@@ -342,14 +342,14 @@ public class HomeController implements Initializable{
     }
 
     private String getEmployeeGender(){
-        return (selectedEmployee.getGender()== GenderType.MALE)? resourceBundle.getString("male")
+        return (GenderType.MALE.equals(selectedEmployee.getGender()))? resourceBundle.getString("male")
                 : resourceBundle.getString("female");
     }
 
    // Add All employee to observable list and update table
     private void loadEmployeeDetails() {
         employees.clear();
-        employees.addAll(employeeService.findAll());
+        employees.addAll(employeeService.findAllByStatus(EmployeeStatus.EMPLOYED));
         tblEmployees.setItems(employees);
     }
 
@@ -369,6 +369,40 @@ public class HomeController implements Initializable{
         }
         return  true;
     }
+
+
+    //  ----------- Employee -----------  //
+
+    @FXML
+    private TextField tfldCurrentYear;
+    @FXML
+    private TextField tfldCurrentMonth;
+    @FXML
+    private Button btnReduceMonth;
+    @FXML
+    private Button btnReduceYear;
+
+
+    @FXML
+    void reduceMonth(ActionEvent event) {
+
+    }
+
+    @FXML
+    void increaseMonth(ActionEvent event) {
+
+    }
+
+    @FXML
+    void reduceYear(ActionEvent event) {
+
+    }
+
+    @FXML
+    void increaseYear(ActionEvent event) {
+
+    }
+
 
 
     //  ----------- Home  -----------  //

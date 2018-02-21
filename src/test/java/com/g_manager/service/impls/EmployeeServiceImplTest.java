@@ -1,6 +1,7 @@
 package com.g_manager.service.impls;
 
 import com.g_manager.entity.Employee;
+import com.g_manager.enums.EmployeeStatus;
 import com.g_manager.repository.mysql.MySqlEmployeeRepository;
 import com.g_manager.service.EmployeeService;
 import org.junit.Before;
@@ -50,8 +51,8 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void whenFindByPhone_thenReturnFoundEmployee(){
-        Mockito.when(mySqlEmployeeRepository.findByPhone(phone)).thenReturn(employee);
-        Employee found = employeeService.findByPhone(phone);
+        Mockito.when(mySqlEmployeeRepository.findByPhoneAndStatus(phone, EmployeeStatus.EMPLOYED)).thenReturn(employee);
+        Employee found = employeeService.findByPhoneAndStatus(phone,EmployeeStatus.EMPLOYED);
 
         assertThat(found).isNotNull();
         assertThat(found.getFullName()).isEqualTo(fullName);
@@ -60,15 +61,15 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void whenNotFoundByPhone_thenReturnNull(){
-        Employee found = employeeService.findByPhone("Not Correct Phone");
+        Employee found = employeeService.findByPhoneAndStatus("Not Correct Phone", EmployeeStatus.EMPLOYED);
 
         assertThat(found).isNull();
     }
 
     @Test
     public void whenFindByFullName_thenReturnFoundEmployee(){
-        Mockito.when(mySqlEmployeeRepository.findByFullName(fullName)).thenReturn(employee);
-        Employee found = employeeService.findByFullName(fullName);
+        Mockito.when(mySqlEmployeeRepository.findByFullNameAndStatus(fullName, EmployeeStatus.EMPLOYED)).thenReturn(employee);
+        Employee found = employeeService.findByFullNameAndStatus(fullName, EmployeeStatus.EMPLOYED);
 
         assertThat(found).isNotNull();
         assertThat(found.getFullName()).isEqualTo(fullName);
@@ -77,7 +78,7 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void whenNotFoundByFullName_thenReturnNull(){
-        Employee found = employeeService.findByFullName("Not Correct Full name");
+        Employee found = employeeService.findByFullNameAndStatus("Not Correct Full name", EmployeeStatus.EMPLOYED);
 
         assertThat(found).isNull();
     }

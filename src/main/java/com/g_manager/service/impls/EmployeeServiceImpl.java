@@ -1,6 +1,7 @@
 package com.g_manager.service.impls;
 
 import com.g_manager.entity.Employee;
+import com.g_manager.enums.EmployeeStatus;
 import com.g_manager.repository.mysql.MySqlEmployeeRepository;
 import com.g_manager.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,12 +57,19 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee findByPhone(String phone) {
-        return mySqlEmployeeRepository.findByPhone(phone);
+    public List<Employee> findAllByStatus(EmployeeStatus status) {
+        Sort sort = new Sort(Sort.Direction.ASC, "fullName");
+        return mySqlEmployeeRepository.findAllByStatus(status, sort);
     }
 
     @Override
-    public Employee findByFullName(String fullName) {
-        return mySqlEmployeeRepository.findByFullName(fullName);
+    public Employee findByPhoneAndStatus(String phone, EmployeeStatus status) {
+        return mySqlEmployeeRepository.findByPhoneAndStatus(phone, status);
+    }
+
+    @Override
+    public Employee findByFullNameAndStatus(String fullName, EmployeeStatus status) {
+
+        return mySqlEmployeeRepository.findByFullNameAndStatus(fullName, status);
     }
 }

@@ -112,12 +112,12 @@ public class ClientDialogController extends BasePersonDialogController implement
     private void checkAndSave(ActionEvent event, Client client) {
         Client existClient = clientService.findByPhone(client.getPhone());
 
-        if((existClient != null && client.getId() == null) || (existClient != null && existClient.getId() != client.getId())){
+        if((existClient != null && client.getId() == null) || (existClient != null && existClient.getId().equals(client.getId()))){
             SimpleDialogManager.showErrorDialog(resourceBundle.getString("save.error"),
                     resourceBundle.getString("client.exist.phone.error")+ ": "+ existClient.getFullName());
         }else {
             existClient = clientService.findByFullName(client.getFullName());
-            if ((existClient != null && client.getId() == null) || (existClient != null && existClient.getId() != client.getId())) {
+            if ((existClient != null && client.getId() == null) || (existClient != null && existClient.getId().equals(client.getId()))) {
                 SimpleDialogManager.showErrorDialog(resourceBundle.getString("save.error"),
                         resourceBundle.getString("client.exist.name.error"));
 
