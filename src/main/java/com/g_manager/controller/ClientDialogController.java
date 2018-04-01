@@ -39,7 +39,6 @@ public class ClientDialogController extends BasePersonDialogController implement
     @FXML
     protected ChoiceBox<ClientCategory> choboxCategory;
     private ObservableList<ClientCategory> categories = FXCollections.observableArrayList();
-    private List<String> errorValidationMessages = new ArrayList<>();
 
     @Autowired
     private ClientService clientService;
@@ -89,7 +88,7 @@ public class ClientDialogController extends BasePersonDialogController implement
                         resourceBundle.getString("client.successful.added"));
             }
         }else{
-            SimpleDialogManager.showErrorDialog(resourceBundle.getString("validation.error"),errorValidationMessages);
+            SimpleDialogManager.showErrorDialog(resourceBundle.getString("validation.error"), errorValidationMessages);
         }
     }
 

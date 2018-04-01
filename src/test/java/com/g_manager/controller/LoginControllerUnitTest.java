@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,7 +38,7 @@ public class LoginControllerUnitTest extends BaseTestFX{
        stage.setTitle(view.getTitle());
        stage.show();
     }
-
+@Ignore
     @Test
     public void testLoginErrorMessage(){
         clickOn("#username");

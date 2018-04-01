@@ -1,6 +1,7 @@
 package com.g_manager.controller;
 
 import com.g_manager.entity.Employee;
+import com.g_manager.entity.Salary;
 import com.g_manager.entity.StaffCategory;
 import com.g_manager.entity.base.BasePerson;
 import com.g_manager.enums.EmployeeStatus;
@@ -20,11 +21,11 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -40,7 +41,6 @@ public class EmployeeDialogController extends BasePersonDialogController impleme
     @FXML
     protected ChoiceBox<StaffCategory> choboxCategory;
     private ObservableList<StaffCategory> categories = FXCollections.observableArrayList();
-    private List<String> errorValidationMessages = new ArrayList<>();
 
     @Autowired
     private EmployeeService employeeService;
@@ -50,7 +50,7 @@ public class EmployeeDialogController extends BasePersonDialogController impleme
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         resourceBundle = resources;
-        registerValidators(resources);
+        registerValidators(resourceBundle);
 
         fillStaffCategoryBox();
     }
@@ -74,40 +74,28 @@ public class EmployeeDialogController extends BasePersonDialogController impleme
         if(errorValidationMessages.isEmpty()){
             if(isEdit){
                 Employee editPersone = editEmployee(employeeService.findOne(personId));
-                checkAndSave(event,editPersone);
-                SimpleDialogManager.showInfoDialog(resourceBundle.getString("employee.editEmployee"),
-                        resourceBundle.getString("employee.successful.edit"));
+               if(checkAndSavePersone(event, editPersone)) {
+                   SimpleDialogManager.showInfoDialog(resourceBundle.getString("employee.editEmployee"),
+                           resourceBundle.getString("employee.successful.edit"));
+               }
             }else {
                 Employee newEmployee = createEmployee();
-                checkAndSave(event, newEmployee);
-                SimpleDialogManager.showInfoDialog(resourceBundle.getString("employee.addNewEmployee"),
-                        resourceBundle.getString("employee.successful.add"));
+                if(checkAndSavePersone(event, newEmployee)) {
+                    SimpleDialogManager.showInfoDialog(resourceBundle.getString("employee.addNewEmployee"),
+                            resourceBundle.getString("employee.successful.add"));
+                }
             }
         }else{
-            SimpleDialogManager.showErrorDialog(resourceBundle.getString("validation.error"),errorValidationMessages);
+            SimpleDialogManager.showErrorDialog(resourceBundle.getString("validation.error"), errorValidationMessages);
         }
     }
 
-    private void checkAndSave(ActionEvent event, Employee employee) {
-
-        Employee existEmployee = employeeService.findByPhoneAndStatus(employee.getPhone(), EmployeeStatus.EMPLOYED);
-
-        if((existEmployee != null && employee.getId() == null) || (existEmployee != null && existEmployee.getId().equals(employee.getId()))){
-            SimpleDialogManager.showErrorDialog(resourceBundle.getString("save.error"),
-                    resourceBundle.getString("employee.exist.phone.error")+ ": "+ existEmployee.getFullName());
-        }else {
-            existEmployee = employeeService.findByFullNameAndStatus(employee.getFullName(), EmployeeStatus.EMPLOYED);
-            if ((existEmployee != null && employee.getId() == null) || (existEmployee != null && existEmployee.getId().equals(employee.getId()))) {
-                SimpleDialogManager.showErrorDialog(resourceBundle.getString("save.error"),
-                        resourceBundle.getString("employee.exist.name.error"));
-
-            } else {
-                employeeService.save(employee);
-                actionClose(event);
-            }
-        }
-
+    private boolean checkAndSavePersone(ActionEvent event, Employee persone) {
+        boolean isSaved = employeeService.checkAndSave(event,persone);
+        actionClose(event);
+        return isSaved;
     }
+
 
     private Employee createEmployee() {
         Employee newEmployee = new Employee();
@@ -115,6 +103,8 @@ public class EmployeeDialogController extends BasePersonDialogController impleme
         newEmployee.setStatus(EmployeeStatus.EMPLOYED);
         newEmployee.setWorkStartDate(LocalDate.now());
         newEmployee.setTitleFotoPath(isMale()? MALE_DEFAULT_EMPLOYEE_TITLE_FOTO_PATH : FEMALE_DEFAULT_EMPLOYEE_TITLE_FOTO_PATH);
+        newEmployee.setSalaries(new ArrayList<>());
+        newEmployee.getSalaries().add(Salary.newInstance(newEmployee));
 
         return newEmployee;
     }
@@ -135,6 +125,8 @@ public class EmployeeDialogController extends BasePersonDialogController impleme
         employee.setPhone(getPhone());
         employee.setGender(isMale()? GenderType.MALE : GenderType.FEMALE);
         employee.setLastChangeDate(LocalDateTime.now());
+        employee.setRate(getRate());
+        employee.setWorkHoursPerWeek(getWorkHoursPerWeek());
     }
 
     @Override
@@ -144,9 +136,26 @@ public class EmployeeDialogController extends BasePersonDialogController impleme
         Employee employee = (Employee) person;
         StaffCategory currentStaffCategory = employee.getStaffCategory();
         choboxCategory.getSelectionModel().select((currentStaffCategory!=null)? currentStaffCategory : categories.get(0));
+        tfldSalaryRate.setText((employee.getRate()!=null)? employee.getRate().toString() : "");
+        tfldWorkHoursPerWeek.setText((employee.getWorkHoursPerWeek()!=null)? employee.getWorkHoursPerWeek().toString() : "");
     }
 
     private StaffCategory getCategory(){
         return choboxCategory.getSelectionModel().getSelectedItem();
+    }
+    private BigDecimal getRate() {
+        if (tfldSalaryRate.getText().isEmpty()) {
+            return null;
+        } else {
+            return new BigDecimal(tfldSalaryRate.getText());
+        }
+    }
+
+    private BigDecimal getWorkHoursPerWeek() {
+        if(tfldWorkHoursPerWeek.getText().isEmpty()){
+            return  null;
+        }else{
+            return new BigDecimal(tfldWorkHoursPerWeek.getText());
+        }
     }
 }

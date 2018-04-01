@@ -1,14 +1,20 @@
 package com.g_manager.controller;
 
 import com.g_manager.config.StageManager;
-import com.g_manager.entity.Client;
-import com.g_manager.entity.Employee;
+import com.g_manager.entity.*;
+import com.g_manager.enums.AccrualType;
 import com.g_manager.enums.EmployeeStatus;
 import com.g_manager.enums.GenderType;
+import com.g_manager.exception.StaffCategoryException;
+import com.g_manager.models.AccrualModel;
 import com.g_manager.service.ClientService;
 import com.g_manager.service.EmployeeService;
+import com.g_manager.service.SalaryService;
+import com.g_manager.service.StaffCategoryService;
 import com.g_manager.utils.SimpleDialogManager;
 import com.g_manager.view.FxmlView;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -18,6 +24,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -31,13 +38,18 @@ import org.springframework.stereotype.Controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -351,6 +363,7 @@ public class HomeController implements Initializable{
         employees.clear();
         employees.addAll(employeeService.findAllByStatus(EmployeeStatus.EMPLOYED));
         tblEmployees.setItems(employees);
+        loadEmployeeSalaryDetails();
     }
 
     private Stage getStageEmployeeDialog(ActionEvent actionEvent) {
@@ -371,38 +384,216 @@ public class HomeController implements Initializable{
     }
 
 
-    //  ----------- Employee -----------  //
+    //  ----------- Salary -----------  //
 
     @FXML
     private TextField tfldCurrentYear;
     @FXML
     private TextField tfldCurrentMonth;
     @FXML
+    private Label lblNotChooseEmployeeSalary;
+    @FXML
+    private HBox paneEmployeeSalaryInfo;
+    @FXML
     private Button btnReduceMonth;
     @FXML
     private Button btnReduceYear;
+    @FXML
+    private TreeTableColumn<Employee, Long> colEmployeeSalaryId;
+    @FXML
+    private TreeTableColumn<Employee, String> colFullNameEmployeeSalary;
+    @FXML
+    private TreeTableColumn<Employee, BigDecimal> colEmployeeSalary;
+    @FXML
+    private TreeTableView<Employee> tablSalary;
+    @FXML
+    private TreeTableColumn<Employee, String> colEmployeeSalaryCategory;
+    @FXML
+    private Tab tabSalary;
+    @FXML
+    private TreeTableColumn<AccrualModel, String> colDescriptionSalary;
+    @FXML
+    private TreeTableColumn<AccrualModel, String> colAccrualSalary;
+    @FXML
+    private TreeTableColumn<AccrualModel, BigDecimal> colAmountSalary;
+    @FXML
+    private TreeTableColumn<AccrualModel, LocalDateTime> colDateAccrualSalary;
+    @FXML
+    private TreeTableView<AccrualModel> tablAccrualSalary;
+    @FXML
+    private Label rateSalaryEmployee;
+    @FXML
+    private Label hoursWorkedSalaryEmployee;
+    @FXML
+    private Label paymentPerHourSalaryEmployee;
+    @FXML
+    private Label totalSalaryEmployee;
+
+    private ObservableList<Employee> salaryEmployees = FXCollections.observableArrayList();
+    private ObservableList<AccrualModel> accrualModels = FXCollections.observableArrayList();
+    private Employee selectedEmployeeSalary;
 
 
     @FXML
     void reduceMonth(ActionEvent event) {
-
+        monthSalaryDate = monthSalaryDate.minusMonths(1);
+        setMonthAndYear();
+        loadEmployeeSalaryDetails();
     }
 
     @FXML
     void increaseMonth(ActionEvent event) {
-
+        monthSalaryDate = monthSalaryDate.plusMonths(1);
+        setMonthAndYear();
+        loadEmployeeSalaryDetails();
     }
 
     @FXML
     void reduceYear(ActionEvent event) {
-
+        monthSalaryDate = monthSalaryDate.minusYears(1);
+        setMonthAndYear();
+        loadEmployeeSalaryDetails();
     }
 
     @FXML
     void increaseYear(ActionEvent event) {
-
+        monthSalaryDate = monthSalaryDate.plusYears(1);
+        setMonthAndYear();
+        loadEmployeeSalaryDetails();
     }
 
+    @Autowired
+    private StaffCategoryService staffCategoryService;
+    @Autowired
+    private SalaryService salaryService;
+
+    private LocalDate monthSalaryDate;
+
+    private void initSalaryTabData() {
+
+        monthSalaryDate = LocalDate.now();
+        setMonthAndYear();
+    }
+
+    private void tableEmployeeSalarySelect() {
+        if(selectedEmployeeSalary != null){
+
+            fillEmployeeSalaryInfo();
+
+            lblNotChooseEmployeeSalary.setVisible(false);
+            paneEmployeeSalaryInfo.setVisible(true);
+        }else{
+            lblNotChooseEmployeeSalary.setVisible(true);
+            paneEmployeeSalaryInfo.setVisible(false);
+        }
+    }
+
+    private void fillEmployeeSalaryInfo() {
+        if(selectedEmployeeSalary != null){
+            rateSalaryEmployee.setText(selectedEmployeeSalary.getRate().toString());
+            Salary currentSalary = salaryService.getOneByMonthSalaryDateAndEmployee(monthSalaryDate, selectedEmployeeSalary);
+            hoursWorkedSalaryEmployee.setText(currentSalary.getHoursWorked().toString());
+            paymentPerHourSalaryEmployee.setText(getPaymentPerHour());
+            loadAccrualModelDetails(currentSalary);
+
+        }
+//TODO
+    }
+
+    private void loadAccrualModelDetails(Salary currentSalary){
+        TreeItem<AccrualModel> mainRoot = new TreeItem<>(new AccrualModel());
+        getAccruals(currentSalary);
+        for (AccrualType accrualType : AccrualType.values()) {
+            if (!accrualModels.isEmpty()) {
+                fillAccrualTable(accrualType, mainRoot);
+            }
+        }
+        tablAccrualSalary.setRoot(mainRoot);
+        tablAccrualSalary.setShowRoot(false);
+    }
+
+    private List<AccrualModel> getAccruals(Salary currentSalary) {
+        List<AccrualModel> accruals = new ArrayList<>();
+        for(Bonus bonus : currentSalary.getBonuses()){
+            accruals.add(AccrualModel.buildByBonus(bonus));
+        }
+        for(Penalty penalty : currentSalary.getPenalties()){
+            accruals.add(AccrualModel.buildByPenalty(penalty));
+        }
+        accrualModels.clear();
+        accrualModels.addAll(accruals);
+        return accruals;
+    }
+
+    private String getPaymentPerHour() {
+       BigDecimal weeksInMonth = BigDecimal.valueOf(monthSalaryDate.lengthOfMonth()/7);
+       BigDecimal paymentPerWeek = selectedEmployeeSalary.getRate().divide(weeksInMonth,2,BigDecimal.ROUND_HALF_UP);
+       BigDecimal paymentPerHour = paymentPerWeek.divide(selectedEmployeeSalary.getWorkHoursPerWeek(),2,BigDecimal.ROUND_HALF_UP);
+    if(paymentPerHour != null){
+        return paymentPerHour.toPlainString();
+    }else{
+        return "0,00";
+    }
+    }
+
+    private void setMonthAndYear() {
+        tfldCurrentYear.setText(String.valueOf(monthSalaryDate.getYear()));
+        tfldCurrentMonth.setText(monthSalaryDate.getMonth().getDisplayName(TextStyle.FULL_STANDALONE,resourceBundle.getLocale()));
+    }
+
+    private void loadEmployeeSalaryDetails() {
+        List<StaffCategory> categories = new ArrayList<>();
+        categories = getStaffCategories(categories);
+        TreeItem<Employee> mainRoot = new TreeItem<>(new Employee());
+        salaryEmployees.clear();
+            salaryEmployees.addAll(employeeService.findAllByMonthSalaryDate(monthSalaryDate));
+            for (StaffCategory staffCategory : categories) {
+                if (!salaryEmployees.isEmpty()) {
+                    fillSalaryTable(staffCategory, mainRoot);
+                }
+            }
+            tablSalary.setRoot(mainRoot);
+            tablSalary.setShowRoot(false);
+    }
+
+    private List<StaffCategory> getStaffCategories(List<StaffCategory> categories) {
+        try {
+            categories = staffCategoryService.findAllNotEmpty();
+        } catch (StaffCategoryException e) {
+            LOGGER.error("Unable to get any Staff category", e, e.getCause());
+            Platform.exit();
+        }
+        return categories;
+    }
+
+    private void fillSalaryTable(StaffCategory staffCategory, TreeItem<Employee> mainRoot) {
+
+        Employee tableRootTitle = new Employee();
+        tableRootTitle.setStaffCategory(staffCategory);
+        TreeItem<Employee> rootItem = new TreeItem<>(tableRootTitle);
+        rootItem.setExpanded(true);
+        for (Employee emp : salaryEmployees) {
+            if (staffCategory.equals(emp.getStaffCategory())) {
+                TreeItem<Employee> item = new TreeItem<>(emp);
+                rootItem.getChildren().add(item);
+            }
+        }
+       mainRoot.getChildren().add(rootItem);
+    }
+
+    private void fillAccrualTable(AccrualType accrualType, TreeItem<AccrualModel> mainRoot){
+        AccrualModel tableRootTitle = new AccrualModel();
+        tableRootTitle.setAccrual(accrualType);
+        TreeItem<AccrualModel> rootItem = new TreeItem<>(tableRootTitle);
+        rootItem.setExpanded(true);
+        for (AccrualModel accrualModel : accrualModels) {
+            if (accrualType.equals(accrualModel.getAccrual())) {
+                TreeItem<AccrualModel> item = new TreeItem<>(accrualModel);
+                rootItem.getChildren().add(item);
+            }
+        }
+        mainRoot.getChildren().add(rootItem);
+    }
 
 
     //  ----------- Home  -----------  //
@@ -423,9 +614,11 @@ public class HomeController implements Initializable{
     public void initialize(URL location, ResourceBundle resources) {
 
         resourceBundle = resources;
-        setColumnProperties();
+
         loadClientDetails();
+        initSalaryTabData();
         loadEmployeeDetails();
+        setColumnProperties();
 
         addListeners();
 
@@ -444,6 +637,12 @@ public class HomeController implements Initializable{
                 tableEmployeeSelect();
             }
         });
+        tablSalary.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue !=null) {
+                selectedEmployeeSalary = tablSalary.getSelectionModel().getSelectedItem().getValue();
+                tableEmployeeSalarySelect();
+            }
+        });
         textClientSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue!=null){
                 searchClient();
@@ -460,21 +659,27 @@ public class HomeController implements Initializable{
         // --- Client ---
         colClientId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
-        colClientCategory.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Client, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Client, String> param) {
-                return  new SimpleStringProperty(param.getValue().getClientCategory().getCategory());
-            }
-        });
+        colClientCategory.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getClientCategory().getCategory()));
         // --- Employee ---
         colEmployeeId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colFullNameEmployee.setCellValueFactory(new PropertyValueFactory<>("fullName"));
-        colEmployeeCategory.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Employee, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Employee, String> param) {
-                return  new SimpleStringProperty(param.getValue().getStaffCategory().getCategory());
-            }
+        colEmployeeCategory.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStaffCategory().getCategory()));
+        // --- Salary ---
+        colEmployeeSalaryId.setCellValueFactory(new TreeItemPropertyValueFactory<>("id"));
+        colFullNameEmployeeSalary.setCellValueFactory(new TreeItemPropertyValueFactory<>("fullName"));
+        colEmployeeSalaryCategory.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().getStaffCategory().getCategory()));
+        colEmployeeSalary.setCellValueFactory(param -> {
+            BigDecimal result = null;
+           if(param.getValue().getValue().getId()!=null) {
+               result = salaryService.getFullCurrentSalary(monthSalaryDate,param.getValue().getValue());
+           }
+            return new SimpleObjectProperty<BigDecimal>(result);
         });
+
+        colAccrualSalary.setCellValueFactory(new TreeItemPropertyValueFactory<>("accrual"));
+        colAmountSalary.setCellValueFactory(new TreeItemPropertyValueFactory<>("amount"));
+        colDescriptionSalary.setCellValueFactory(new TreeItemPropertyValueFactory<>("description"));
+        colDateAccrualSalary.setCellValueFactory(new TreeItemPropertyValueFactory<>("createDate"));
     }
 
     private void changeTitleFoto(File newFotoFile) {

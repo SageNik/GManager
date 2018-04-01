@@ -1,7 +1,6 @@
 package com.g_manager.controller;
 
 import com.g_manager.constants.Constants;
-import com.g_manager.entity.base.BaseCategory;
 import com.g_manager.entity.base.BasePerson;
 import com.g_manager.enums.GenderType;
 import com.g_manager.utils.ValidationManager;
@@ -41,6 +40,9 @@ public abstract class BasePersonDialogController implements Constants{
     protected TextField tfldSecondName;
 
     @FXML
+    protected TextField tfldWorkHoursPerWeek;
+
+    @FXML
     protected DatePicker datepicBirthday;
 
     @FXML
@@ -58,13 +60,16 @@ public abstract class BasePersonDialogController implements Constants{
     @FXML
     protected TextField tfldPhone;
 
+    @FXML
+    protected TextField tfldSalaryRate;
+
     protected Boolean isEdit;
     protected Long personId = null;
 
     protected ResourceBundle resourceBundle;
-    private ValidationSupport validation;
-    private ValidationManager validationManager;
-    private List<String> errorValidationMessages = new ArrayList<>();
+    protected ValidationSupport validation;
+    protected ValidationManager validationManager;
+    protected List<String> errorValidationMessages = new ArrayList<>();
 
     @FXML
     void actionClose(ActionEvent event) {
@@ -87,7 +92,7 @@ public abstract class BasePersonDialogController implements Constants{
         tfldSecondName.setText((fullName.length>=3)? fullName[2]: "");
         tfldAddress.setText((person.getAddress()!=null)? person.getAddress() : "");
         tfldEmail.setText((person.getEmail()!=null)? person.getEmail() : "");
-        tfldPhone.setText((person.getPhone()!=null)? person.getPhone() : "");
+        tfldPhone.setText((person.getPhone()!=null)? person.getPhone().trim() : "");
         datepicBirthday.setValue(person.getBirthday());
         if(person.getGender() == null){
             rbtnMale.setSelected(true);
@@ -112,6 +117,11 @@ public abstract class BasePersonDialogController implements Constants{
             errorValidationMessages.add( validation.getHighestMessage(tfldPhone).get().getText());}
         if(validation.getHighestMessage(tfldEmail).isPresent()){
             errorValidationMessages.add( validation.getHighestMessage(tfldEmail).get().getText());}
+        if(validation.getHighestMessage(tfldSalaryRate).isPresent()){
+            errorValidationMessages.add( validation.getHighestMessage(tfldSalaryRate).get().getText());}
+        if(validation.getHighestMessage(tfldWorkHoursPerWeek).isPresent()){
+            errorValidationMessages.add( validation.getHighestMessage(tfldWorkHoursPerWeek).get().getText());}
+
     }
 
     protected void registerValidators(ResourceBundle resources) {
@@ -122,13 +132,15 @@ public abstract class BasePersonDialogController implements Constants{
         validation.registerValidator(tfldSurname,true, validationManager::checkSurname);
         validation.registerValidator(tfldPhone,true, validationManager::checkPhone);
         validation.registerValidator(tfldEmail,true, validationManager::checkEmail);
+        validation.registerValidator(tfldSalaryRate,true, validationManager::checkRate);
+        validation.registerValidator(tfldWorkHoursPerWeek, true, validationManager::checkWorkHoursPerWeek);
     }
 
     protected String getFullName (){
         return tfldSurname.getText() +" "+ tfldName.getText() +" "+ tfldSecondName.getText();
     }
     protected String getPhone(){
-        return tfldPhone.getText();
+        return tfldPhone.getText().replaceAll(" ","");
     }
     protected String getEmale(){
         return tfldEmail.getText();

@@ -10,12 +10,12 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 
 /**
- * Created by Nikolenko Oleh on 16.02.2018.
+ * Created by Nikolenko Oleh on 21.02.2018.
  */
 @Data
 @Entity
-@Table(name="bonus")
-public class Bonus extends BaseEntity{
+@Table(name = "penalty")
+public class Penalty extends BaseEntity{
 
     private BigDecimal amount;
     private String description;

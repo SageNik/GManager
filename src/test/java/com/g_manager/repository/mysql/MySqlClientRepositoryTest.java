@@ -50,7 +50,7 @@ public class MySqlClientRepositoryTest {
     public void whenNotFoundByPhone_thenReturnNull(){
         Client found = mySqlClientRepository.findByPhone(phone);
 
-        assertThat(found).isNotNull();
+        assertThat(found).isNull();
     }
 
     @Test
